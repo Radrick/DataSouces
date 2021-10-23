@@ -14,7 +14,6 @@ namespace StudyDataSource
         private SAPbouiCOM.EditText EditText1;
         private SAPbouiCOM.EditText EditText2;
         private SAPbouiCOM.EditText EditText3;
-        private SAPbouiCOM.EditText EditText4;
         private SAPbouiCOM.EditText EditText5;
         private SAPbouiCOM.EditText EditText6;
         private SAPbouiCOM.StaticText StaticText0;
@@ -26,7 +25,14 @@ namespace StudyDataSource
         private SAPbouiCOM.StaticText StaticText6;
         private SAPbouiCOM.StaticText StaticText7;
         private SAPbouiCOM.StaticText StaticText8;
+        private SAPbouiCOM.Matrix Matrix0;
+        private SAPbouiCOM.Grid Grid2;
         private SAPbouiCOM.Button Button0;
+        private SAPbouiCOM.Button Button1;
+        private SAPbouiCOM.Button Button2;
+        private SAPbouiCOM.Button Button3;
+        private SAPbouiCOM.Button Button4;
+        private SAPbouiCOM.ComboBox ComboBox0;
 
         public Form1()
         {
@@ -43,7 +49,6 @@ namespace StudyDataSource
             this.EditText1 = ((SAPbouiCOM.EditText)(this.GetItem("Item_1").Specific));
             this.EditText2 = ((SAPbouiCOM.EditText)(this.GetItem("Item_2").Specific));
             this.EditText3 = ((SAPbouiCOM.EditText)(this.GetItem("Item_3").Specific));
-            this.EditText4 = ((SAPbouiCOM.EditText)(this.GetItem("Item_9").Specific));
             this.StaticText0 = ((SAPbouiCOM.StaticText)(this.GetItem("Item_4").Specific));
             this.StaticText1 = ((SAPbouiCOM.StaticText)(this.GetItem("Item_5").Specific));
             this.StaticText2 = ((SAPbouiCOM.StaticText)(this.GetItem("Item_6").Specific));
@@ -57,7 +62,19 @@ namespace StudyDataSource
             this.StaticText7 = ((SAPbouiCOM.StaticText)(this.GetItem("Item_14").Specific));
             this.EditText6 = ((SAPbouiCOM.EditText)(this.GetItem("Item_15").Specific));
             this.StaticText8 = ((SAPbouiCOM.StaticText)(this.GetItem("Item_16").Specific));
+            this.Matrix0 = ((SAPbouiCOM.Matrix)(this.GetItem("Item_17").Specific));
+            this.Button1 = ((SAPbouiCOM.Button)(this.GetItem("Item_18").Specific));
+            this.Button1.PressedAfter += new SAPbouiCOM._IButtonEvents_PressedAfterEventHandler(this.Button1_PressedAfter);
+            this.Grid2 = ((SAPbouiCOM.Grid)(this.GetItem("Item_21").Specific));
+            this.ComboBox0 = ((SAPbouiCOM.ComboBox)(this.GetItem("Item_23").Specific));
+            this.Button2 = ((SAPbouiCOM.Button)(this.GetItem("Item_25").Specific));
+            this.Button2.PressedAfter += new SAPbouiCOM._IButtonEvents_PressedAfterEventHandler(this.Button2_PressedAfter);
+            this.Button3 = ((SAPbouiCOM.Button)(this.GetItem("Item_26").Specific));
+            this.Button3.PressedAfter += new SAPbouiCOM._IButtonEvents_PressedAfterEventHandler(this.Button3_PressedAfter);
+            this.Button4 = ((SAPbouiCOM.Button)(this.GetItem("Item_27").Specific));
+            this.Button4.PressedAfter += new SAPbouiCOM._IButtonEvents_PressedAfterEventHandler(this.Button4_PressedAfter);
             this.OnCustomInitialize();
+
         }
 
         /// <summary>
@@ -67,7 +84,9 @@ namespace StudyDataSource
         {}
         
         private void OnCustomInitialize()
-        {}
+        {
+            LoadComboBoxCardType();
+        }
 
         /*
          * Filtra o CardType do Cliente no ChooseFromList
@@ -116,8 +135,8 @@ namespace StudyDataSource
                 client.Name = oDataTable.GetValue(1, 0).ToString();
                 client.fName = oDataTable.GetValue("CardFName", 0).ToString();
                 client.ClientGroup = oDataTable.GetValue("GroupCode", 0).ToString();
-                client.ClientType = oDataTable.GetValue("CardType", 0).ToString();
                 client.DataInicioRelacao = oDataTable.GetValue("DateFrom", 0);
+                client.CardType = oDataTable.GetValue("CardType", 0).ToString();
 
                 /* Percorrendo um Data table
                 for (int i = 0; i < oDataTable.Rows.Count; i++)
@@ -138,7 +157,21 @@ namespace StudyDataSource
                     this.UIAPIRawForm.DataSources.UserDataSources.Item("NameClient").ValueEx = client.Name;
                     this.UIAPIRawForm.DataSources.UserDataSources.Item("fName").ValueEx = client.Name;
                     this.UIAPIRawForm.DataSources.UserDataSources.Item("ClientGoup").ValueEx = client.ClientGroup;
-                    this.UIAPIRawForm.DataSources.UserDataSources.Item("ClientType").ValueEx = client.ClientType;
+
+                    switch (client.CardType)
+                    {
+                        case ("C"):
+                            this.UIAPIRawForm.DataSources.UserDataSources.Item("TypeClient").ValueEx = SAPbobsCOM.BoCardTypes.cCustomer.ToString();
+                            break;
+                        case ("S"):
+                            this.UIAPIRawForm.DataSources.UserDataSources.Item("TypeClient").ValueEx = SAPbobsCOM.BoCardTypes.cSupplier.ToString();
+                            break;
+                        default:
+                            this.UIAPIRawForm.DataSources.UserDataSources.Item("TypeClient").ValueEx = SAPbobsCOM.BoCardTypes.cLid.ToString();
+                            break;
+                    }
+
+                    //this.UIAPIRawForm.DataSources.UserDataSources.Item("CardType").ValueEx = client.CardType;
                     //this.UIAPIRawForm.DataSources.UserDataSources.Item("dtIniRela").ValueEx = client.DataInicioRelacao.ToString().Substring(0,10);
                 }
             }
@@ -158,9 +191,13 @@ namespace StudyDataSource
                     /*
                      * Capturando valor do data table e atribuindo ao UserDataSource
                      */
-                    this.UIAPIRawForm.DataSources.DataTables.Item("DT_0").ExecuteQuery("SELECT GroupName FROM OCRG WHERE GroupCode='"+client.ClientGroup+"'");
+                    this.UIAPIRawForm.DataSources.DataTables.Item("DT_0").ExecuteQuery("SELECT GroupName FROM OCRG WHERE GroupCode='" + client.ClientGroup + "'");
                     client.NameClientGroup = this.UIAPIRawForm.DataSources.DataTables.Item("DT_0").GetValue("GroupName", 0).ToString();
                     this.UIAPIRawForm.DataSources.UserDataSources.Item("nameGoupPN").ValueEx = client.NameClientGroup;
+                }
+                else
+                {
+                    Application.SBO_Application.StatusBar.SetText("Código do cliente vazio", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Warning);
                 }
             }
             catch (Exception e)
@@ -168,5 +205,84 @@ namespace StudyDataSource
                 Application.SBO_Application.StatusBar.SetText(e.Message, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Error);
             }
         }
+
+        private void Button1_PressedAfter(object sboObject, SAPbouiCOM.SBOItemEventArg pVal)
+        {
+            try
+            {
+                if (client.CodClient != null)
+                {
+                    this.UIAPIRawForm.DataSources.DataTables.Item("DT_0").ExecuteQuery(@"SELECT DocNum,CardCode, CardName FROM ORDR WHERE CardCode ='" + client.CodClient + "'");
+
+                    /* Bind de DataTable com Matrix é necessário utilizar o método Bind*/
+                    Matrix0.Columns.Item("Col_0").DataBind.Bind("DT_0", "DocNum");
+                    Matrix0.Columns.Item("Col_1").DataBind.Bind("DT_0", "CardCode");
+                    Matrix0.Columns.Item("Col_2").DataBind.Bind("DT_0", "CardName");
+
+                    Matrix0.LoadFromDataSource();
+                    Matrix0.AutoResizeColumns();
+                }
+                else
+                {
+                    Application.SBO_Application.StatusBar.SetText("Código do cliente vazio", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Warning);
+                }
+            }
+            catch (Exception e)
+            {
+                Application.SBO_Application.StatusBar.SetText(e.Message, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Error);
+            }
+        }
+
+        private void LoadComboBoxCardType()
+        {
+            ComboBox0.ValidValues.Add(SAPbobsCOM.BoCardTypes.cCustomer.ToString(), "Cliente");
+            ComboBox0.ValidValues.Add(SAPbobsCOM.BoCardTypes.cSupplier.ToString(), "Fornecedor");
+            ComboBox0.ValidValues.Add(SAPbobsCOM.BoCardTypes.cLid.ToString(), "Cliente potencial");
+        }
+
+        #region Bind com Grid
+
+        /*O Grid possui na sua definição o DataTable. Dessa forma, o Grid se adequa a query que for executada no DataTable*/
+        private void Button2_PressedAfter(object sboObject, SAPbouiCOM.SBOItemEventArg pVal)
+        {
+            try
+            {
+                if (client.CodClient != null)
+                {
+                    this.UIAPIRawForm.DataSources.DataTables.Item("DT_1").ExecuteQuery(@"SELECT CardCode as ""Codigo do cliente"", CardName as ""Nome do cliente"" FROM OCRD WHERE CardCode ='" + client.CodClient + "'");
+                } else
+                {
+                    Application.SBO_Application.StatusBar.SetText("Código do cliente vazio", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Warning);
+                }
+            }
+            catch (Exception e)
+            {
+                Application.SBO_Application.StatusBar.SetText(e.Message, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Error);
+            }
+        }
+        private void Button3_PressedAfter(object sboObject, SAPbouiCOM.SBOItemEventArg pVal)
+        {
+            try
+            {
+                this.UIAPIRawForm.DataSources.DataTables.Item("DT_1").ExecuteQuery(@"SELECT ""ItemCode"", ""ItemName"" FROM OITM");
+            }
+            catch (Exception e)
+            {
+                Application.SBO_Application.StatusBar.SetText(e.Message, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Error);
+            }
+        }
+
+        private void Button4_PressedAfter(object sboObject, SAPbouiCOM.SBOItemEventArg pVal)
+        {
+            try
+            {
+                this.UIAPIRawForm.DataSources.DataTables.Item("DT_1").ExecuteQuery(@"SELECT ""DocNum"", ""CardCode"", ""CardName"" FROM ORDR");
+            }
+            catch (Exception e)
+            {
+                Application.SBO_Application.StatusBar.SetText(e.Message, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Error);
+            }
+        }
+        #endregion
     }
 }

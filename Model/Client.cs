@@ -13,7 +13,7 @@ namespace StudyDataSource.Model
         public String fName { get; set; }
         public String ClientGroup { get; set; }
         public String NameClientGroup { get; set; }
-        public String ClientType { get; set; }
         public Object DataInicioRelacao { get; set; }
+        public String CardType { get; set; }
     }
 }
