@@ -33,6 +33,8 @@ namespace StudyDataSource
         private SAPbouiCOM.Button Button3;
         private SAPbouiCOM.Button Button4;
         private SAPbouiCOM.ComboBox ComboBox0;
+        private SAPbouiCOM.Folder Folder0;
+        private SAPbouiCOM.Folder Folder1;
 
         public Form1()
         {
@@ -73,6 +75,8 @@ namespace StudyDataSource
             this.Button3.PressedAfter += new SAPbouiCOM._IButtonEvents_PressedAfterEventHandler(this.Button3_PressedAfter);
             this.Button4 = ((SAPbouiCOM.Button)(this.GetItem("Item_27").Specific));
             this.Button4.PressedAfter += new SAPbouiCOM._IButtonEvents_PressedAfterEventHandler(this.Button4_PressedAfter);
+            this.Folder0 = ((SAPbouiCOM.Folder)(this.GetItem("Item_29").Specific));
+            this.Folder1 = ((SAPbouiCOM.Folder)(this.GetItem("Item_30").Specific));
             this.OnCustomInitialize();
 
         }
@@ -87,6 +91,8 @@ namespace StudyDataSource
         {
             LoadComboBoxCardType();
         }
+
+        #region CFL do campo de código do cliente. Preenche os outros campos apartir da escolha do cliente no CFL
 
         /*
          * Filtra o CardType do Cliente no ChooseFromList
@@ -181,6 +187,9 @@ namespace StudyDataSource
             }
         }
 
+        #endregion
+
+        #region Captura o nome do grupo de clientes apartir do código inserido no campo Cod Grupo de clie
         private void Button0_PressedAfter(object sboObject, SAPbouiCOM.SBOItemEventArg pVal)
         {
 
@@ -205,7 +214,9 @@ namespace StudyDataSource
                 Application.SBO_Application.StatusBar.SetText(e.Message, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Error);
             }
         }
+        #endregion
 
+        #region BIND DataTable com Matrix
         private void Button1_PressedAfter(object sboObject, SAPbouiCOM.SBOItemEventArg pVal)
         {
             try
@@ -232,16 +243,9 @@ namespace StudyDataSource
                 Application.SBO_Application.StatusBar.SetText(e.Message, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Error);
             }
         }
+        #endregion
 
-        private void LoadComboBoxCardType()
-        {
-            ComboBox0.ValidValues.Add(SAPbobsCOM.BoCardTypes.cCustomer.ToString(), "Cliente");
-            ComboBox0.ValidValues.Add(SAPbobsCOM.BoCardTypes.cSupplier.ToString(), "Fornecedor");
-            ComboBox0.ValidValues.Add(SAPbobsCOM.BoCardTypes.cLid.ToString(), "Cliente potencial");
-        }
-
-        #region Bind com Grid
-
+        #region Bind com Grid (OCRD, OITM, ORDR)
         /*O Grid possui na sua definição o DataTable. Dessa forma, o Grid se adequa a query que for executada no DataTable*/
         private void Button2_PressedAfter(object sboObject, SAPbouiCOM.SBOItemEventArg pVal)
         {
@@ -250,7 +254,8 @@ namespace StudyDataSource
                 if (client.CodClient != null)
                 {
                     this.UIAPIRawForm.DataSources.DataTables.Item("DT_1").ExecuteQuery(@"SELECT CardCode as ""Codigo do cliente"", CardName as ""Nome do cliente"" FROM OCRD WHERE CardCode ='" + client.CodClient + "'");
-                } else
+                }
+                else
                 {
                     Application.SBO_Application.StatusBar.SetText("Código do cliente vazio", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Warning);
                 }
@@ -283,6 +288,17 @@ namespace StudyDataSource
                 Application.SBO_Application.StatusBar.SetText(e.Message, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Error);
             }
         }
+        #endregion
+
+        #region Carrega informações do ComboBox do tipo de cliente
+        private void LoadComboBoxCardType()
+        {
+            ComboBox0.ValidValues.Add(SAPbobsCOM.BoCardTypes.cCustomer.ToString(), "Cliente");
+            ComboBox0.ValidValues.Add(SAPbobsCOM.BoCardTypes.cSupplier.ToString(), "Fornecedor");
+            ComboBox0.ValidValues.Add(SAPbobsCOM.BoCardTypes.cLid.ToString(), "Cliente potencial");
+        }
+
+
         #endregion
     }
 }
